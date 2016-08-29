@@ -1,0 +1,46 @@
+#sh-feed-importer {
+	width: 600px;
+	float: left;
+	margin: 20px 0;
+	border-top: 1px solid #cccccc;
+	position: relative;
+}
+
+#sh-feed-importer .fieldset {
+	float: left;
+	width: 100%;
+	margin: 10px 0;
+}
+
+#sh-feed-importer input, #sh-feed-importer select {
+	width: 100%;
+	margin-top: 6px;
+	float: left;
+}
+
+.form-loading {
+	position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    background-color: rgba(255, 255, 255, 0.42);
+    background-image: url(img/spin.gif);
+    background-position: 50%;
+    background-repeat: no-repeat;
+    margin: auto;
+    text-align: center;
+}
+
+.form-loading span {
+	position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: -100px;
+    margin: auto;
+    max-height: 20px;
+}
