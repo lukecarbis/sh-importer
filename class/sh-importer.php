@@ -235,9 +235,8 @@ class Sh_Importer {
 						<input type="hidden" name="sh-data[5][name]" value="allowed_categories">
 						<p>
 							<label for="sh-data[5][value]">Allow categories in this list: ( separate by line )</label>
-							<textarea style="height:200px;" name="sh-data[5][value]" id="sh-data[5][value]" class="widefat">
-								<?php echo esc_html( isset( $options['allowed_categories'] ) ? $options['allowed_categories'] : '' ); ?>
-							</textarea>
+							<?php $allowed_categories = isset( $options['allowed_categories'] ) ? $options['allowed_categories'] : ''; ?>
+							<textarea style="height:200px;" name="sh-data[5][value]" id="sh-data[5][value]" class="widefat"><?php echo esc_html( $allowed_categories ); ?></textarea>
 						</p>
 					</div>
 					<div class="fieldset">
