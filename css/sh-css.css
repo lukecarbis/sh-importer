@@ -1,9 +1,5 @@
 #sh-feed-importer {
 	width: 600px;
-	float: left;
-	margin: 20px 0;
-	border-top: 1px solid #cccccc;
-	position: relative;
 }
 
 #sh-feed-importer .fieldset {

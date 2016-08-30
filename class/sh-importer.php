@@ -31,7 +31,7 @@ class Sh_Importer {
 	 */
 	function register_sh_assets() {
 		global $pagenow;
-		if ( 'admin.php' === $pagenow && isset( $_GET['page'] ) && ( 'sh-feed-importer' === $_GET['page'] || 'sh-feed-importer-bulk' === $_GET['page'] ) ) {
+		if ( 'tools.php' === $pagenow && isset( $_GET['page'] ) && ( 'sh-feed-importer' === $_GET['page'] || 'sh-feed-importer-bulk' === $_GET['page'] ) ) {
 
 			if ( 'sh-feed-importer-bulk' === $_GET['page'] ) {
 				wp_enqueue_style( array( 'thickbox', 'media-upload' ) );
@@ -50,36 +50,22 @@ class Sh_Importer {
 	 * Register sh import menu items
 	 */
 	function register_sh_importer() {
-		$menu_args = array(
-			array(
-				'page-title' => __( 'Feed importer setting', 'sh-importer' ),
-				'menu-title' => __( 'Feed importer', 'sh-importer' ),
-				'capability' => 'administrator',
-				'slug' => 'sh-feed-importer',
-				'fallback' => array( $this, 'sh_feed_importer_setting' ),
-				'icon' => SH_PLUGIN_DIR . '/assets/img/icon.png',
-				'position' => null,
-			),
-			array(
-				'page-title' => __( 'Bulk Importer', 'sh-importer' ),
-				'menu-title' => __( 'Bulk Importer', 'sh-importer' ),
-				'type'		 => 'submenu',
-				'parent'	 => 'sh-feed-importer',
-				'capability' => 'administrator',
-				'slug'		 => 'sh-feed-importer-bulk',
-				'fallback'	 => array( $this, 'sh_feed_importer_bulk' ),
-				'icon'		 => '',
-				'position'	 => null,
-			),
+		add_submenu_page(
+			'tools.php',
+			__( 'Feed Importer Settings', 'sh-importer' ),
+			__( 'Feed importer', 'sh-importer' ),
+			'administrator',
+			'sh-feed-importer',
+			array( $this, 'sh_feed_importer_setting' )
 		);
-
-		foreach ( $menu_args as $menu ) {
-			if ( isset( $menu['type'] ) && 'submenu' === $menu['type'] ) {
-				add_submenu_page( $menu['parent'], $menu['page-title'], $menu['menu-title'], $menu['capability'], $menu['slug'], $menu['fallback'] );
-			} else {
-				add_menu_page( $menu['page-title'], $menu['menu-title'], $menu['capability'], $menu['slug'], $menu['fallback'], $menu['icon'], $menu['position'] );
-			}
-		}
+		add_submenu_page(
+			'tools.php',
+			__( 'Bulk Importer', 'sh-importer' ),
+			__( 'Bulk Importer', 'sh-importer' ),
+			'administrator',
+			'sh-feed-importer-bulk',
+			array( $this, 'sh_feed_importer_bulk' )
+		);
 	}
 
 	/**
@@ -104,7 +90,7 @@ class Sh_Importer {
 	function run_importer() {
 		global $pagenow;
 
-		if ( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'sh-feed-importer' === $_GET['page'] ) {
+		if ( 'tools.php' === $pagenow && isset( $_GET['page'] ) && 'sh-feed-importer' === $_GET['page'] ) {
 			if ( isset( $_GET['sh-act'] ) && 'run' === $_GET['sh-act'] ) {
 				$this->run();
 			}
@@ -180,78 +166,81 @@ class Sh_Importer {
 	function sh_feed_importer_setting() {
 		$options = $this->get_options();
 		?>
-		<div class="admin-setting" id="sh-feed-importer">
-			<div class="container">
-				<?php if ( isset( $this->messages ) ) { ?>
-					<p class="alert"><?php echo wp_kses_post( $this->messages ); ?></p>
-				<?php } ?>
-				<form method="post" id="sh-save">
-					<div class="fieldset">
-						<input type="hidden" name="sh-data[0][name]" value="feed_status">
-						<p>
-							<label for="sh-data[0][value]">Activate SH Feed importer ?</label>
-							<select name="sh-data[0][value]" id="sh-data[0][value]">
-								<option value="true" <?php selected( $options['feed_status'], 'true' ); ?>>Active</option>
-								<option value="false" <?php selected( $options['feed_status'], 'false' ); ?>>Inactive</option>
-							</select>
-						</p>
-					</div>
-					<div class="fieldset">
-						<input type="hidden" name="sh-data[1][name]" value="custom_minutes">
-						<p>
-							<label for="sh-data[1][value]">Custom Schedule in Minutes</label>
-							<input type="text" name="sh-data[1][value]" id="sh-data[1][value]" value="<?php echo esc_attr( $options['custom_minutes'] ); ?>">
-						</p>
-					</div>
-					<div class="fieldset">
-						<input type="hidden" name="sh-data[2][name]" value="feed_url">
-						<p>
-							<label for="sh-data[2][value]">Feed URL:</label>
-							<input type="text" name="sh-data[2][value]" id="sh-data[2][value]" value="<?php echo esc_attr( $options['feed_url'] ); ?>">
-						</p>
-					</div>
-					<div class="fieldset">
-						<input type="hidden" name="sh-data[3][name]" value="post_status">
-						<p>
-							<label for="sh-data[3][value]">Save new imported post as :</label>
-							<select name="sh-data[3][value]" id="sh-data[3][value]">
-								<option value="publish" <?php selected( $options['post_status'], 'publish' ); ?>>Published</option>
-								<option value="draft" <?php selected( $options['post_status'], 'draft' ); ?>>Drafted</option>
-								<option value="pending" <?php selected( $options['post_status'], 'pending' ); ?>>Pending</option>
-							</select>
-						</p>
-					</div>
-					<div class="fieldset">
-						<input type="hidden" name="sh-data[4][name]" value="img_body_rehost_status">
-						<p>
-							<label for="sh-data[4][value]">Activate Image rehost on body content:</label>
-							<select name="sh-data[4][value]" id="sh-data[4][value]">
-								<option value="false" <?php selected( $options['img_body_rehost_status'], 'false' ); ?>>Inactive</option>
-								<option value="true" <?php selected( $options['img_body_rehost_status'], 'true' ); ?>>Active</option>
-							</select>
-						</p>
-					</div>
-					<div class="fieldset">
-						<input type="hidden" name="sh-data[5][name]" value="allowed_categories">
-						<p>
-							<label for="sh-data[5][value]">Allow categories in this list: ( separate by line )</label>
-							<?php $allowed_categories = isset( $options['allowed_categories'] ) ? $options['allowed_categories'] : ''; ?>
-							<textarea style="height:200px;" name="sh-data[5][value]" id="sh-data[5][value]" class="widefat"><?php echo esc_html( $allowed_categories ); ?></textarea>
-						</p>
-					</div>
-					<div class="fieldset">
-						<?php wp_nonce_field( 'shiSaveSetting', 'shiSetting' ); ?>
-						<input type="hidden" name="action" value="save_sh_setting">
-						<input type="submit" value="Saves">
-					</div>
-				</form>
-			</div>
-			<div class="run-importer">
-				<form method="post" id="run">
-					<?php wp_nonce_field( 'shImporter', 'shiRunImporter' ); ?>
-					<input type="hidden" name="action" value="run_sh_importer">
-					<input type="submit" value="Run importer now">
-				</form>
+		<div class="wrap">
+			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+			<div class="admin-setting" id="sh-feed-importer">
+				<div class="container">
+					<?php if ( isset( $this->messages ) ) { ?>
+						<p class="alert"><?php echo wp_kses_post( $this->messages ); ?></p>
+					<?php } ?>
+					<form method="post" id="sh-save">
+						<div class="fieldset">
+							<input type="hidden" name="sh-data[0][name]" value="feed_status">
+							<p>
+								<label for="sh-data[0][value]">Activate SH Feed importer ?</label>
+								<select name="sh-data[0][value]" id="sh-data[0][value]">
+									<option value="true" <?php selected( $options['feed_status'], 'true' ); ?>>Active</option>
+									<option value="false" <?php selected( $options['feed_status'], 'false' ); ?>>Inactive</option>
+								</select>
+							</p>
+						</div>
+						<div class="fieldset">
+							<input type="hidden" name="sh-data[1][name]" value="custom_minutes">
+							<p>
+								<label for="sh-data[1][value]">Custom Schedule in Minutes</label>
+								<input type="text" name="sh-data[1][value]" id="sh-data[1][value]" value="<?php echo esc_attr( $options['custom_minutes'] ); ?>">
+							</p>
+						</div>
+						<div class="fieldset">
+							<input type="hidden" name="sh-data[2][name]" value="feed_url">
+							<p>
+								<label for="sh-data[2][value]">Feed URL:</label>
+								<input type="text" name="sh-data[2][value]" id="sh-data[2][value]" value="<?php echo esc_attr( $options['feed_url'] ); ?>">
+							</p>
+						</div>
+						<div class="fieldset">
+							<input type="hidden" name="sh-data[3][name]" value="post_status">
+							<p>
+								<label for="sh-data[3][value]">Save new imported post as :</label>
+								<select name="sh-data[3][value]" id="sh-data[3][value]">
+									<option value="publish" <?php selected( $options['post_status'], 'publish' ); ?>>Published</option>
+									<option value="draft" <?php selected( $options['post_status'], 'draft' ); ?>>Drafted</option>
+									<option value="pending" <?php selected( $options['post_status'], 'pending' ); ?>>Pending</option>
+								</select>
+							</p>
+						</div>
+						<div class="fieldset">
+							<input type="hidden" name="sh-data[4][name]" value="img_body_rehost_status">
+							<p>
+								<label for="sh-data[4][value]">Activate Image rehost on body content:</label>
+								<select name="sh-data[4][value]" id="sh-data[4][value]">
+									<option value="false" <?php selected( $options['img_body_rehost_status'], 'false' ); ?>>Inactive</option>
+									<option value="true" <?php selected( $options['img_body_rehost_status'], 'true' ); ?>>Active</option>
+								</select>
+							</p>
+						</div>
+						<div class="fieldset">
+							<input type="hidden" name="sh-data[5][name]" value="allowed_categories">
+							<p>
+								<label for="sh-data[5][value]">Allow categories in this list: ( separate by line )</label>
+								<?php $allowed_categories = isset( $options['allowed_categories'] ) ? $options['allowed_categories'] : ''; ?>
+								<textarea style="height:200px;" name="sh-data[5][value]" id="sh-data[5][value]" class="widefat"><?php echo esc_html( $allowed_categories ); ?></textarea>
+							</p>
+						</div>
+						<div class="fieldset">
+							<?php wp_nonce_field( 'shiSaveSetting', 'shiSetting' ); ?>
+							<input type="hidden" name="action" value="save_sh_setting">
+							<input type="submit" value="Saves">
+						</div>
+					</form>
+				</div>
+				<div class="run-importer">
+					<form method="post" id="run">
+						<?php wp_nonce_field( 'shImporter', 'shiRunImporter' ); ?>
+						<input type="hidden" name="action" value="run_sh_importer">
+						<input type="submit" value="Run importer now">
+					</form>
+				</div>
 			</div>
 		</div>
 		<?php
@@ -263,46 +252,49 @@ class Sh_Importer {
 	function sh_feed_importer_bulk() {
 		$options = $this->get_options();
 		?>
-		<div class="admin-setting" id="sh-feed-importer">
-			<div class="container">
-				<?php if ( isset( $this->messages ) ) { ?>
-					<p class="alert"><?php echo wp_kses_post( $this->messages ); ?></p>
-				<?php } ?>
-				<form method="post" id="sh-save">
-					<div class="fieldset">
-						<input type="hidden" name="sh-data[0][name]" value="feed_list_file">
-						<p>
-							<label for="sh-data[0][value]">Url List ( .txt )</label>
-							<input type="text" class="file-upload" name="sh-data[0][value]" id="sh-data[0][value]" value="<?php echo esc_attr( isset( $options['feed_list_file'] ) ? $options['feed_list_file'] : '' ); ?>">
-						</p>
-					</div>
-					<div class="fieldset">
-						<input type="hidden" name="sh-data[1][name]" value="event_interval">
-						<p>
-							<label for="sh-data[1][value]">Event time interval ( in hour ):</label>
-							<input type="text" name="sh-data[1][value]" id="sh-data[1][value]" value="<?php echo esc_attr( isset( $options['event_interval'] ) ? $options['event_interval'] : '' ); ?>">
-						</p>
-					</div>
-					<div class="fieldset">
-						<?php wp_nonce_field( 'shiSaveSetting', 'shiSetting' ); ?>
-						<input type="hidden" name="action" value="save_sh_setting">
-						<input type="submit" value="Save">
-					</div>
-				</form>
-				<form method="post" id="sh-add-task">
-					<div class="fieldset">
-						<?php wp_nonce_field( 'shBulkEvent', 'shRunBulkImporter' ); ?>
-						<input type="hidden" name="action" value="add_bulk_event">
-						<input type="submit" class="button button-submit" value="Add Task to Background">
-					</div>
-				</form>
-				<form method="post" id="sh-download-log">
-					<div class="fieldset">
-						<?php wp_nonce_field( 'shiLog', 'shiDownloadLog' ); ?>
-						<input type="hidden" name="action" value="download_log">
-						<input type="submit" class="button button-submit" value="Download Log">
-					</div>
-				</form>
+		<div class="wrap">
+		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+			<div class="admin-setting" id="sh-feed-importer">
+				<div class="container">
+					<?php if ( isset( $this->messages ) ) { ?>
+						<p class="alert"><?php echo wp_kses_post( $this->messages ); ?></p>
+					<?php } ?>
+					<form method="post" id="sh-save">
+						<div class="fieldset">
+							<input type="hidden" name="sh-data[0][name]" value="feed_list_file">
+							<p>
+								<label for="sh-data[0][value]">Url List ( .txt )</label>
+								<input type="text" class="file-upload" name="sh-data[0][value]" id="sh-data[0][value]" value="<?php echo esc_attr( isset( $options['feed_list_file'] ) ? $options['feed_list_file'] : '' ); ?>">
+							</p>
+						</div>
+						<div class="fieldset">
+							<input type="hidden" name="sh-data[1][name]" value="event_interval">
+							<p>
+								<label for="sh-data[1][value]">Event time interval ( in hour ):</label>
+								<input type="text" name="sh-data[1][value]" id="sh-data[1][value]" value="<?php echo esc_attr( isset( $options['event_interval'] ) ? $options['event_interval'] : '' ); ?>">
+							</p>
+						</div>
+						<div class="fieldset">
+							<?php wp_nonce_field( 'shiSaveSetting', 'shiSetting' ); ?>
+							<input type="hidden" name="action" value="save_sh_setting">
+							<input type="submit" value="Save">
+						</div>
+					</form>
+					<form method="post" id="sh-add-task">
+						<div class="fieldset">
+							<?php wp_nonce_field( 'shBulkEvent', 'shRunBulkImporter' ); ?>
+							<input type="hidden" name="action" value="add_bulk_event">
+							<input type="submit" class="button button-submit" value="Add Task to Background">
+						</div>
+					</form>
+					<form method="post" id="sh-download-log">
+						<div class="fieldset">
+							<?php wp_nonce_field( 'shiLog', 'shiDownloadLog' ); ?>
+							<input type="hidden" name="action" value="download_log">
+							<input type="submit" class="button button-submit" value="Download Log">
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
 		<?php
