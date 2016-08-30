@@ -1,12 +1,12 @@
 <?php
 /*
-Plugin Name: News Importer
-Author: Shelingholmes
-Author URI: http://gardeningspotlight.com
-Version: 1.0
-Description: Fetch and Import an item from rss feed to WordPress post
-Tag: freelancer, rss to post, automated, scheduled
-*/
+ * Plugin Name: News Importer
+ * Author: Shelingholmes
+ * Author URI: http://gardeningspotlight.com
+ * Version: 1.0
+ * Description: Fetch and Import an item from rss feed to WordPress post
+ * Tag: freelancer, rss to post, automated, scheduled
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	wp_die( 'You do not have sufficient permission to access to this page' );
