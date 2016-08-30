@@ -3,7 +3,7 @@
  * Plugin Name: News Importer
  * Author: Shelingholmes
  * Author URI: http://gardeningspotlight.com
- * Version: 1.0
+ * Version: 2.0
  * Description: Fetch and Import an item from rss feed to WordPress post
  * Tag: freelancer, rss to post, automated, scheduled
  */
